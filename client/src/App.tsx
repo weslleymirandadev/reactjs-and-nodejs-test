@@ -1,7 +1,58 @@
-function App() {
-  return (
-    <h1>Hello World</h1>
-  )
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
+import Home from './routes/Home';
+
+function SignIn() {
+  return <h1>Sign In</h1>;
 }
 
-export default App
+function SignUp() {
+  return <h1>Sign Up</h1>;
+}
+
+function User() {
+  return <h1>User page</h1>;
+}
+
+function Dashboard() {
+  return <h1>Dashboard</h1>;
+}
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/signin" replace />;
+}
+
+function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Navigate to="/" replace /> : <>{children}</>;
+}
+
+function App() {
+  const { isAuthenticated } = useAuth();
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={isAuthenticated ? <User /> : <Home />} />
+        <Route path="/signin" element={
+          <PublicOnlyRoute>
+            <SignIn />
+          </PublicOnlyRoute>
+        } />
+        <Route path="/signup" element={
+          <PublicOnlyRoute>
+            <SignUp />
+          </PublicOnlyRoute>
+        } />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
