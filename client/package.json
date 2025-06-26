@@ -10,6 +10,7 @@
     "start": "vite preview"
   },
   "dependencies": {
+    "@coinbase/wallet-sdk": "^4.3.4",
     "@hookform/resolvers": "^5.1.1",
     "@react-three/drei": "^10.3.0",
     "@react-three/fiber": "^9.1.2",

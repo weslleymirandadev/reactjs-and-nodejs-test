@@ -15,7 +15,7 @@ import {
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 
-export default function Home() {
+export function Home() {
     const [controlsEnabled, setControlsEnabled] = useState(true);
     const [ether, setEther] = useState<number>();
     const canvasRef = useRef<HTMLDivElement>(null);
