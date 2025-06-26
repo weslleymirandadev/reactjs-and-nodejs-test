@@ -1,11 +1,7 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
-import Home from './routes/Home';
-
-function SignIn() {
-  return <h1>Sign In</h1>;
-}
+import { Home, SignIn } from './routes';
+import React from 'react';
 
 function SignUp() {
   return <h1>Sign Up</h1>;
@@ -35,12 +31,12 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={isAuthenticated ? <User /> : <Home />} />
-        <Route path="/signin" element={
+        <Route path="/sign-in" element={
           <PublicOnlyRoute>
             <SignIn />
           </PublicOnlyRoute>
         } />
-        <Route path="/signup" element={
+        <Route path="/sign-up" element={
           <PublicOnlyRoute>
             <SignUp />
           </PublicOnlyRoute>
