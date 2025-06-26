@@ -5,9 +5,6 @@ import { useState } from "react";
 import { ethers } from "ethers";
 import { createCoinbaseWalletSDK } from '@coinbase/wallet-sdk';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { SiEthereum } from "react-icons/si";
-import { FaGhost } from "react-icons/fa";
-import { RiWallet3Line } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 // Fix window.ethereum typing
@@ -86,7 +83,6 @@ export function SignIn() {
         setEthError(null);
         try {
             const provider = coinbaseWallet.getProvider();
-            const accounts = await provider.request({ method: 'eth_requestAccounts' });
             const ethersProvider = new ethers.BrowserProvider(provider);
             const signer = await ethersProvider.getSigner();
             const address = await signer.getAddress();
