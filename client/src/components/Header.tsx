@@ -3,11 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
 export default function Header() {
-    const { isAuthenticated, logout } = useAuth();
-
-    const handleLogout = () => {
-        logout();
-    };
+    const { isAuthenticated, isAdmin } = useAuth();
 
     return (
         <>
@@ -21,19 +17,13 @@ export default function Header() {
                     <ul className="flex items-center gap-5">
                         {isAuthenticated ? (
                             <>
-                                <li className="text-white-softer hover:underline">
-                                    <Link to="/dashboard">Dashboard</Link>
-                                </li>
+                                {isAdmin && (
+                                    <li className="text-white-softer hover:underline">
+                                        <Link to="/dashboard">Dashboard</Link>
+                                    </li>
+                                )}
                                 <li className="text-white-softer hover:underline">
                                     <Link to="/">Home</Link>
-                                </li>
-                                <li>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="hover:underline decoration-red-500 font-bold text-red-500"
-                                    >
-                                        Logout
-                                    </button>
                                 </li>
                             </>
                         ) : (

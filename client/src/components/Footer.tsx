@@ -1,6 +1,6 @@
 export default function Footer() {
     return (
-        <footer className="w-full bg-black mt-10 py-8 px-4">
+        <footer className="w-full bg-black py-8 px-4">
             <div className="max-w-5xl mx-auto text-left sm:text-center">
                 <h3 className="font-title font-title text-5xl bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text">CoreChain</h3>
                 <p className="text-white text-opacity-80 mb-4">
