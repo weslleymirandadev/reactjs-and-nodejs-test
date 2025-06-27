@@ -15,7 +15,7 @@ module.exports = {
       name: "server",
       cwd: "./server",
       script: isWindows ? "cmd" : "pnpm",
-      args: isWindows ? "/c pnpm run start:prod" : "run start:prod",
+      args: isWindows ? "/c pnpm run start" : "run start",
       env: {
         NODE_ENV: "production",
         PORT: 8080

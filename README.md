@@ -7,7 +7,7 @@ This is a monorepo containing the frontend (client) and backend (server) applica
 
 ## About the project
 
-This project showcases my skills and proficiency as a Full-Stack Engineer, utilizing a robust tech stack to craft innovative solutions.
+This project showcases my skills and proficiency as a Full-Stack Engineer, utilizing a robust tech stack to craft an innovative solution.
 
 ### How to use the application
 
@@ -20,6 +20,8 @@ You are gonna be redirected to the `Sign In` page, where you must put the same c
 Then you can manage the Meeting feature of the Application.
 
 ## Deployment
+
+I strongly recommend using `pnpm` since its faster than `npm` and the setup for the installation and build for this project is way easier with `pnpm`.
 
 1. **Install dependencies for all workspaces:**
    ```sh
