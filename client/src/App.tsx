@@ -3,9 +3,15 @@ import { Home, SignIn, SignUp, Dashboard, User } from './routes';
 import { useAuth } from './contexts/AuthContext';
 import React from 'react';
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/sign-in" replace />;
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isAdmin } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/sign-in" replace />;
+  }
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
 }
 
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
@@ -30,9 +36,9 @@ function App() {
           </PublicOnlyRoute>
         } />
         <Route path="/dashboard" element={
-          <ProtectedRoute>
+          <AdminRoute>
             <Dashboard />
-          </ProtectedRoute>
+          </AdminRoute>
         } />
       </Routes>
     </Router>
