@@ -61,7 +61,17 @@ export class AuthService {
 
         if (!passwordMatches) throw new ForbiddenException("Invalid Credentials");
 
-        return this.signToken(user.username, user.email);
+        const token = await this.signToken(user.username, user.email);
+
+        return {
+            access_token: token.access_token,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role
+            }
+        };
     }
 
     async signToken(userId: string, email: string): Promise<{ access_token: string }> {
