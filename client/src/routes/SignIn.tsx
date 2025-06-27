@@ -1,11 +1,14 @@
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useAuth } from "../contexts/AuthContext";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import api from "../services/api";
+import { z } from "zod";
 import { ethers } from "ethers";
 import { createCoinbaseWalletSDK } from '@coinbase/wallet-sdk';
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { SiHiveBlockchain } from "react-icons/si";
 
 // Fix window.ethereum typing
 declare global {
@@ -29,10 +32,17 @@ const coinbaseWallet = createCoinbaseWalletSDK({
 });
 
 export function SignIn() {
+    const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [welcomeMessage, setWelcomeMessage] = useState<string | null>(null);
     const [ethAddress, setEthAddress] = useState<string | null>(null);
     const [ethError, setEthError] = useState<string | null>(null);
-    const [showPassword, setShowPassword] = useState(false);
     const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
+    const { login } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+
     const { register, handleSubmit, formState: { errors, isSubmitting, isValid }, watch } = useForm<FormData>({
         resolver: zodResolver(schema),
         mode: "onChange",
@@ -43,51 +53,85 @@ export function SignIn() {
     const walletConnected = Boolean(ethAddress);
     const canSignIn = isValid && walletConnected;
 
+    useEffect(() => {
+        if (location.state?.fromSignUp) {
+            setWelcomeMessage("Account created successfully! Please sign in with your credentials.");
+        }
+    }, [location]);
+
     async function onSubmit(data: FormData) {
-        alert(JSON.stringify({ ...data, ethAddress, connectedWallet }, null, 2));
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const response = await api.post('/auth/signin', {
+                email: data.email,
+                password: data.password,
+            });
+
+            if (response.data.access_token) {
+                login(response.data.access_token);
+                navigate('/dashboard');
+            }
+        } catch (err: any) {
+            if (err.response?.data?.message) {
+                setError(err.response.data.message);
+            } else if (err.response?.status === 403) {
+                setError("Invalid credentials");
+            } else {
+                setError("An error occurred during sign in");
+            }
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     async function connectMetaMask() {
-        setEthError(null);
         try {
             if (!window.ethereum) {
                 setEthError("MetaMask not found");
                 return;
             }
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const accounts = await provider.send("eth_requestAccounts", []);
-            setEthAddress(accounts[0]);
-            setConnectedWallet("MetaMask");
+
+            const newAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' }) as string[];
+            if (newAccounts.length > 0) {
+                setEthAddress(newAccounts[0]);
+                setConnectedWallet("MetaMask");
+                setEthError(null);
+            }
         } catch (err: any) {
             setEthError(err.message || "Error connecting to MetaMask");
         }
     }
 
     async function connectPhantom() {
-        setEthError(null);
         try {
             if (!window.phantom?.ethereum) {
                 setEthError("Phantom not found");
                 return;
             }
-            const provider = new ethers.BrowserProvider(window.phantom.ethereum);
-            const accounts = await provider.send("eth_requestAccounts", []);
-            setEthAddress(accounts[0]);
-            setConnectedWallet("Phantom");
+
+            const newAccounts = await window.phantom.ethereum.request({ method: 'eth_requestAccounts' }) as string[];
+            if (newAccounts.length > 0) {
+                setEthAddress(newAccounts[0]);
+                setConnectedWallet("Phantom");
+                setEthError(null);
+            }
         } catch (err: any) {
             setEthError(err.message || "Error connecting to Phantom");
         }
     }
 
     async function connectCoinbaseWallet() {
-        setEthError(null);
         try {
             const provider = coinbaseWallet.getProvider();
-            const ethersProvider = new ethers.BrowserProvider(provider);
-            const signer = await ethersProvider.getSigner();
-            const address = await signer.getAddress();
-            setEthAddress(address);
-            setConnectedWallet("Coinbase Wallet");
+
+            const newAccounts = await provider.request({ method: 'eth_requestAccounts' }) as string[];
+            if (newAccounts.length > 0) {
+                setEthAddress(newAccounts[0]);
+                setConnectedWallet("Coinbase Wallet");
+                setEthError(null);
+            }
         } catch (err: any) {
             setEthError(err.message || "Error connecting to Coinbase Wallet");
         }
@@ -96,7 +140,23 @@ export function SignIn() {
     return (
         <main className="flex justify-center items-center align-middle w-full min-h-screen">
             <section className="max-w-[350px] w-full p-4 bg-white rounded shadow-md">
-                <h1 className="text-3xl mb-5 font-bold bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text">Sign In</h1>
+                <h1 className="text-3xl mb-5 font-bold bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text">
+                    <SiHiveBlockchain className="text-blue-600" />
+                    Sign In
+                </h1>
+
+                {error && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                        {error}
+                    </div>
+                )}
+
+                {welcomeMessage && (
+                    <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+                        {welcomeMessage}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                     <div className="relative">
                         <input
@@ -106,7 +166,7 @@ export function SignIn() {
                             autoComplete="email"
                             placeholder=" "
                         />
-                        <label className="absolute left-3 top-2 text-gray-500 transition-all duration-200 peer-focus:text-blue-500 peer-focus:text-sm peer-focus:-translate-y-5 peer-focus:-translate-x-0 outline-none peer-focus:bg-white peer-focus:px-1 peer-[:not(:placeholder-shown)]:text-sm peer-[:not(:placeholder-shown)]:-translate-y-4 peer-[:not(:placeholder-shown)]:bg-white peer-[:not(:placeholder-shown)]:px-1">
+                        <label className="absolute pointer-events-none left-3 top-2 text-gray-500 transition-all duration-200 peer-focus:text-blue-500 peer-focus:text-sm peer-focus:-translate-y-5 peer-focus:-translate-x-0 outline-none peer-focus:bg-white peer-focus:px-1 peer-[:not(:placeholder-shown)]:text-sm peer-[:not(:placeholder-shown)]:-translate-y-4 peer-[:not(:placeholder-shown)]:bg-white peer-[:not(:placeholder-shown)]:px-1">
                             E-mail<span className="text-red-500">*</span>
                         </label>
                         {errors.email && <span className="text-red-500 text-xs mt-1">{errors.email.message}</span>}
@@ -119,13 +179,13 @@ export function SignIn() {
                             autoComplete="current-password"
                             placeholder=" "
                         />
-                        <label className="absolute left-3 top-2 text-gray-500 transition-all duration-200 peer-focus:text-blue-500 peer-focus:text-sm peer-focus:-translate-y-5 peer-focus:-translate-x-0 outline-none peer-focus:bg-white peer-focus:px-1 peer-[:not(:placeholder-shown)]:text-sm peer-[:not(:placeholder-shown)]:-translate-y-4 peer-[:not(:placeholder-shown)]:bg-white peer-[:not(:placeholder-shown)]:px-1">
+                        <label className="absolute pointer-events-none left-3 top-2 text-gray-500 transition-all duration-200 peer-focus:text-blue-500 peer-focus:text-sm peer-focus:-translate-y-5 peer-focus:-translate-x-0 outline-none peer-focus:bg-white peer-focus:px-1 peer-[:not(:placeholder-shown)]:text-sm peer-[:not(:placeholder-shown)]:-translate-y-4 peer-[:not(:placeholder-shown)]:bg-white peer-[:not(:placeholder-shown)]:px-1">
                             Password<span className="text-red-500">*</span>
                         </label>
                         <button
                             type="button"
                             tabIndex={-1}
-                            className="absolute right-3 top-5 -translate-y-1/2 text-gray-500 hover:text-blue-600"
+                            className="absolute cursor-pointer right-3 top-5 -translate-y-1/2 text-gray-500 hover:text-blue-600"
                             onClick={() => setShowPassword((v) => !v)}
                             aria-label={showPassword ? "Hide password" : "Show password"}
                         >
@@ -133,6 +193,7 @@ export function SignIn() {
                         </button>
                         {errors.password && <span className="text-red-500 text-xs mt-1">{errors.password.message}</span>}
                     </div>
+
                     <div className="mt-2 flex flex-col items-center gap-2">
                         <p className="text-sm text-gray-600 mb-2">Connect your wallet<span className="text-red-500">*</span>:</p>
                         <div className="grid grid-cols-2 gap-2 w-full">
@@ -173,22 +234,24 @@ export function SignIn() {
                                 <span className="text-xs">Coinbase Wallet</span>
                             </button>
                         </div>
-                        {ethAddress && (
-                            <div className="text-center">
-                                <span className="text-xs text-green-600 font-medium">{connectedWallet} connected</span>
-                                <div className="text-xs text-green-600 break-all mt-1">{ethAddress}</div>
-                            </div>
-                        )}
+
                         {ethError && (
                             <span className="text-xs text-red-500">{ethError}</span>
                         )}
+
+                        {ethAddress && (
+                            <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                                Connected: {ethAddress.slice(0, 6)}...{ethAddress.slice(-4)}
+                            </div>
+                        )}
                     </div>
+
                     <button
                         type="submit"
-                        className={`bg-blue-600 text-white py-2 rounded font-semibold transition ${!canSignIn ? 'opacity-60 cursor-not-allowed' : 'hover:bg-indigo-500'}`}
-                        disabled={!canSignIn || isSubmitting}
+                        className={`bg-blue-600 cursor-pointer text-white py-2 rounded font-semibold transition ${!canSignIn ? 'opacity-60 cursor-not-allowed' : 'hover:bg-indigo-500'}`}
+                        disabled={!canSignIn || isSubmitting || isLoading}
                     >
-                        Sign In
+                        {isLoading ? "Signing in..." : "Sign In"}
                     </button>
                 </form>
 
@@ -203,7 +266,7 @@ export function SignIn() {
                     to="/sign-up"
                     className="inline-block w-full text-center mt-2 px-4 py-2 rounded bg-gradient-to-br from-blue-600 to-indigo-400 text-white font-semibold"
                 >
-                    Sign up
+                    Sign Up
                 </Link>
             </section>
         </main>
