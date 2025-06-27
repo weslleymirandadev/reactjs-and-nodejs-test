@@ -7,7 +7,7 @@ This is a monorepo containing the frontend (client) and backend (server) applica
 
 ## About the project
 
-This project showcases my skills and proficiency as a Full-Stack Engineer, utilizing a robust tech stack to craft innovative solutions.
+This project showcases my skills and proficiency as a Full-Stack Engineer, utilizing a robust tech stack to craft an innovative solution.
 
 ### How to use the application
 
