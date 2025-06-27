@@ -65,9 +65,9 @@ export function SignUp() {
     return (
         <main className="flex justify-center items-center align-middle w-full min-h-screen">
             <section className="max-w-[350px] w-full p-4 bg-white rounded shadow-md">
-                <h1 className="text-3xl mb-5 font-bold bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text">
+                <h1 className="text-3xl flex items-center gap-2 mb-5 font-bold bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text">
                     <SiHiveBlockchain className="text-blue-600" />
-                    Sign Up
+                    <span>Sign Up</span>
                 </h1>
 
                 {error && (
@@ -155,7 +155,7 @@ export function SignUp() {
                     </div>
                     <button
                         type="submit"
-                        className={`bg-blue-600 cursor-pointer text-white py-2 rounded font-semibold transition ${(!isValid || isLoading) ? 'opacity-60 cursor-not-allowed' : 'hover:bg-indigo-500'}`}
+                        className={`bg-blue-600 text-white py-2 rounded font-semibold transition ${(!isValid || isLoading) ? 'opacity-60 cursor-not-allowed' : 'hover:bg-indigo-500 cursor-pointer'}`}
                         disabled={!isValid || isSubmitting || isLoading}
                     >
                         {isLoading ? "Creating account..." : "Sign Up"}
