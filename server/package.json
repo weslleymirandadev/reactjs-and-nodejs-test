@@ -4,7 +4,7 @@
   "description": "",
   "author": "weslleymirandadev",
   "scripts": {
-    "install": "npx prisma generate",
+    "install": "npx prisma generate && npx prisma db push",
     "build": "nest build",
     "start": "nest start",
     "start:prod": "node dist/main",
