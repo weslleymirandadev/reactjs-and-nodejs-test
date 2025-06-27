@@ -2,15 +2,24 @@
   "name": "react-and-nodejs-test",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "author": "weslleymirandadev",
+  "workspaces": [
+    "server",
+    "client"
+  ],
   "scripts": {
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "start": "pm2 start ecosystem.config.js && echo App running on http://localhost:80",
+    "stop": "pm2 stop all"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.6.3",
   "devDependencies": {
+    "@types/node": "^22.10.7",
     "turbo": "^2.5.4"
+  },
+  "dependencies": {
+    "pm2": "^6.0.8"
   }
 }
