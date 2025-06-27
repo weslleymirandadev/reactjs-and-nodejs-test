@@ -21,6 +21,8 @@ Then you can manage the Meeting feature of the Application.
 
 ## Deployment
 
+I strongly recommend using `pnpm` since its faster than `npm` and the setup for the installation and build for this project is way easier with `pnpm`.
+
 1. **Install dependencies for all workspaces:**
    ```sh
    pnpm install
