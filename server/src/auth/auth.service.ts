@@ -1,5 +1,5 @@
+import { ForbiddenException, Injectable, ConflictException } from "@nestjs/common";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { ForbiddenException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
@@ -38,13 +38,7 @@ export class AuthService {
             };
         }
         catch (error) {
-            if (error instanceof PrismaClientKnownRequestError) {
-                if (error.code == "P2002") {
-                    throw new ForbiddenException("Already Taken Credentials")
-                }
-            }
-
-            throw error;
+            throw new ConflictException("Already Taken Credentials");
         }
     }
 
