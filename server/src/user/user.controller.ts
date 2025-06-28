@@ -7,11 +7,15 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagg
 @ApiTags('users')
 @ApiBearerAuth()
 @Controller('users')
+@UseGuards(JWTGuard)
 export class UserController {
     @Get("me")
     @ApiOperation({ summary: 'Get current user info' })
     @ApiResponse({ status: 200, description: 'User info returned successfully' })
     getMe(@GetUser() user: User) {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
         return user;
     }
 }

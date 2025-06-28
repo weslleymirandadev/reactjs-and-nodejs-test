@@ -9,6 +9,7 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagg
 @ApiTags('meetings')
 @ApiBearerAuth()
 @Controller('meetings')
+@UseGuards(JWTGuard)
 export class MeetingController {
     constructor(private meetingService: MeetingService) {}
 
@@ -16,18 +17,27 @@ export class MeetingController {
     @ApiOperation({ summary: 'Create a new meeting' })
     @ApiResponse({ status: 201, description: 'Meeting created successfully' })
     async createMeeting(@Body() dto: CreateMeetingDto, @GetUser() user: User) {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
         return this.meetingService.createMeeting(dto, user.id);
     }
 
     @Get()
     @ApiOperation({ summary: 'Get all meetings' })
     async getAllMeetings(@GetUser() user: User) {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
         return this.meetingService.getAllMeetings(user.role === 'admin');
     }
 
     @Get(':id')
     @ApiOperation({ summary: 'Get meeting by ID' })
     async getMeetingById(@Param('id') id: string, @GetUser() user: User) {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
         return this.meetingService.getMeetingById(id, user.role === 'admin');
     }
 
@@ -38,12 +48,18 @@ export class MeetingController {
         @Body() dto: UpdateMeetingDto,
         @GetUser() user: User
     ) {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
         return this.meetingService.updateMeeting(id, dto, user.id, user.role === 'admin');
     }
 
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a meeting' })
     async deleteMeeting(@Param('id') id: string, @GetUser() user: User) {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
         return this.meetingService.deleteMeeting(id, user.id, user.role === 'admin');
     }
 
@@ -54,18 +70,27 @@ export class MeetingController {
         @Body() dto: JoinMeetingDto,
         @GetUser() user: User
     ) {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
         return this.meetingService.joinMeeting(id, user.id, dto.walletAddress);
     }
 
     @Delete(':id/leave')
     @ApiOperation({ summary: 'Leave a meeting' })
     async leaveMeeting(@Param('id') id: string, @GetUser() user: User) {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
         return this.meetingService.leaveMeeting(id, user.id);
     }
 
     @Get(':id/participants')
     @ApiOperation({ summary: 'Get meeting participants' })
     async getMeetingParticipants(@Param('id') id: string, @GetUser() user: User) {
+        if (!user) {
+            throw new Error('User not authenticated');
+        }
         return this.meetingService.getMeetingParticipants(id, user.role === 'admin');
     }
 } 
