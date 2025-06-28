@@ -41,9 +41,8 @@ interface CreateMeetingForm {
 }
 
 export function Dashboard() {
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const { isConnected, address } = useWalletConnection();
-    const [user, setUser] = useState<User | null>(null);
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -56,24 +55,20 @@ export function Dashboard() {
     });
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchMeetings = async () => {
             try {
-                const [userResponse, meetingsResponse] = await Promise.all([
-                    api.get('/users/me'),
-                    api.get('/meetings')
-                ]);
-                setUser(userResponse.data);
+                const meetingsResponse = await api.get('/meetings');
                 setMeetings(meetingsResponse.data);
             } catch (err: any) {
-                setError('Failed to load data');
-                console.error('Error fetching data:', err);
+                setError('Failed to load meetings');
+                console.error('Error fetching meetings:', err);
             } finally {
                 setLoading(false);
             }
         };
 
         if (token) {
-            fetchData();
+            fetchMeetings();
         }
     }, [token]);
 

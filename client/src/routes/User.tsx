@@ -32,27 +32,22 @@ interface Meeting {
 }
 
 export function User() {
-    const { logout, isAdmin } = useAuth();
+    const { logout, isAdmin, user } = useAuth();
     const { isConnected, address } = useWalletConnection();
-    const [user, setUser] = useState<User | null>(null);
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchData();
+        fetchMeetings();
     }, []);
 
-    const fetchData = async () => {
+    const fetchMeetings = async () => {
         try {
-            const [userResponse, meetingsResponse] = await Promise.all([
-                api.get('/users/me'),
-                api.get('/meetings')
-            ]);
-            setUser(userResponse.data);
+            const meetingsResponse = await api.get('/meetings');
             setMeetings(meetingsResponse.data);
         } catch (err: any) {
-            setError('Failed to load data');
+            setError('Failed to load meetings');
         } finally {
             setLoading(false);
         }
@@ -79,7 +74,7 @@ export function User() {
             await api.post(`/meetings/${meetingId}/join`, {
                 walletAddress: address
             });
-            fetchData();
+            fetchMeetings();
         } catch (err: any) {
             setError(
                 err?.response?.data?.message ||
@@ -91,7 +86,7 @@ export function User() {
     const handleLeaveMeeting = async (meetingId: string) => {
         try {
             await api.delete(`/meetings/${meetingId}/leave`);
-            fetchData();
+            fetchMeetings();
         } catch (err) {
             setError('Failed to leave meeting');
         }

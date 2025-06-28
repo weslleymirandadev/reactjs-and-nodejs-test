@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '../store';
 import { restoreWalletState } from '../store/walletSlice';
+import api from '../services/api';
 
 interface User {
   id: string;
@@ -57,24 +58,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [dispatch]);
 
+  // Load user data when token is available but user is not
   useEffect(() => {
     if (token && !user) {
-      // Searches in the backend
-      fetch('http://localhost:8080/users/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(async res => {
-          if (!res.ok) throw new Error('Failed to fetch user');
-          const data = await res.json();
-          setUser(data);
-          localStorage.setItem('user', JSON.stringify(data));
+      api.get('/users/me')
+        .then(response => {
+          const userData = response.data;
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
         })
-        .catch(() => {
+        .catch(error => {
+          console.error('Error fetching user data:', error);
           setUser(null);
           localStorage.removeItem('user');
+          // If token is invalid, remove it
+          if (error.response?.status === 401) {
+            setToken(null);
+            localStorage.removeItem('token');
+          }
         });
     }
-  }, [token, user]);
+  }, [token]); // Only depend on token
 
   const login = (newToken: string, userData: User) => {
     setToken(newToken);
