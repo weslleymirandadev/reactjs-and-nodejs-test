@@ -7,13 +7,6 @@ import { motion } from 'framer-motion';
 import { FaPlus, FaEdit, FaTrash, FaUsers, FaCalendar } from 'react-icons/fa';
 import Footer from '../components/Footer';
 
-interface User {
-    id: string;
-    username: string;
-    email: string;
-    role: string;
-}
-
 interface Meeting {
     id: string;
     title: string;
